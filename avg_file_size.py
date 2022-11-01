@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-import sys
 import os
 import argparse
 
@@ -15,7 +14,7 @@ def main():
     args = parser.parse_args()
     dir = args.directory
 
-    print(f"Geting average file size of: {dir}")
+    print(f"Getting average file size of: {dir}")
     num_bytes = 0
     num_files = 0
     num_empty_files = 0
