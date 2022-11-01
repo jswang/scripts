@@ -74,10 +74,44 @@ def skipped_frames(all_frames: List[Frame]):
                 math.ceil((frame.pts_time - last_frame.pts_time) * C_FPS) - 1, 0
             )
         last_frame = frame
+    if num_out_of_order > 0:
+        print(f"Out of order frames: {num_out_of_order}")
+    if num_skipped_frames > 0:
+        print(f"Skipped frames: {num_skipped_frames}")
 
-    print(
-        f"Out of order frames: {num_out_of_order}, Skipped frames: {num_skipped_frames}"
+
+def get_video_stats(video: str):
+    """Given the name of a video, get general stats"""
+    s = subprocess.run(["ffprobe", "-i", video], capture_output=True, text=True)
+    # Note that output comes in stderr instead of stdout
+    for line in s.stderr.splitlines():
+        if "Duration" in line:
+            print(line.strip())
+        if "Stream" in line:
+            print(line.strip())
+
+
+def analyze_video(video: str):
+    """
+    Analyzes a single video
+    """
+    assert os.path.exists(video), f"{video} doesn't exist"
+    assert os.path.isfile(video), "Not a file"
+
+    print(f"\nAnalyzing: {video}")
+
+    # Run ffprobe to get frame info
+    s = subprocess.run(
+        ["ffprobe", video, "-show_frames"], capture_output=True, text=True
     )
+    # Extract frames
+    all_frames = get_frames(s.stdout)
+
+    # Analyze video as a whole
+    print(f"Number of frames: {len(all_frames)}")
+    get_video_stats(video)
+    frame_breakdown(all_frames)
+    skipped_frames(all_frames)
 
 
 def main():
@@ -85,24 +119,17 @@ def main():
     Analyzes a video using ffmpeg
     """
     parser = argparse.ArgumentParser("Analyzes a video using ffmpeg.")
-    parser.add_argument("video", help="Video to check")
+    parser.add_argument("video", help="Video or directory of videos to check")
     args = parser.parse_args()
-    video = args.video
-    assert os.path.exists(video), f"{video} doesn't exist"
+    dir = args.video
 
-    print(f"Analyzing: {video}")
-
-    # Run ffprobe
-    s = subprocess.run(
-        ["ffprobe", video, "-show_frames"], capture_output=True, text=True
-    )
-    # Extract frames
-    all_frames = get_frames(s.stdout)
-
-    # Analyze frames as a whole
-    print(f"Number of frames: {len(all_frames)}")
-    frame_breakdown(all_frames)
-    skipped_frames(all_frames)
+    if os.path.isfile(dir):
+        analyze_video(dir)
+    else:
+        for f in os.listdir(dir):
+            video = os.path.join(dir, f)
+            if os.path.isfile(video):
+                analyze_video(video)
 
 
 main()
