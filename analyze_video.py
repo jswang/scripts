@@ -7,8 +7,6 @@ import math
 
 # Assumed fps of videos
 C_FPS = 20
-# Tolerance on presentation time stamp
-C_PTS_TOLERANCE = 0.2
 
 
 class Frame:
@@ -71,7 +69,7 @@ def skipped_frames(all_frames: List[Frame]):
         if frame.pts_time < last_frame.pts_time:
             num_out_of_order += 1
         # Gap in frames
-        elif (frame.pts_time - last_frame.pts_time) > C_PTS_TOLERANCE * (1 / C_FPS):
+        elif (frame.pts_time - last_frame.pts_time) > (1 / C_FPS):
             num_skipped_frames += min(
                 math.ceil((frame.pts_time - last_frame.pts_time) * C_FPS) - 1, 0
             )
