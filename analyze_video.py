@@ -86,9 +86,9 @@ def get_video_stats(video: str):
     # Note that output comes in stderr instead of stdout
     for line in s.stderr.splitlines():
         if "Duration" in line:
-            print(line.strip())
+            print(line.split(',')[0].strip())
         if "Stream" in line:
-            print(line.strip())
+            print(line.split(',')[5].strip())
 
 
 def analyze_video(video: str):
