@@ -115,6 +115,16 @@ def analyze_video(video: str):
     frame_breakdown(all_frames)
     skipped_frames(all_frames)
 
+def analyze_dir(dir: str):
+    """
+    Recursively analyze every video in the directory.
+    """
+    if os.path.isfile(dir):
+        analyze_video(dir)
+        return
+    for f in os.listdir(dir):
+        analyze_dir(os.path.join(dir, f))
+
 
 def main():
     """
@@ -125,13 +135,9 @@ def main():
     args = parser.parse_args()
     dir = args.video
 
-    if os.path.isfile(dir):
-        analyze_video(dir)
-    else:
-        for f in os.listdir(dir):
-            video = os.path.join(dir, f)
-            if os.path.isfile(video):
-                analyze_video(video)
+    assert os.path.exists(dir), f"Directory {dir} doesn't exist"
+
+    analyze_dir(dir)
 
 
 main()
