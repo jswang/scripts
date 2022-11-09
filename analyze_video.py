@@ -13,7 +13,7 @@ class Frame:
     def __init__(self, lines: List[str]):
         for line in lines:
             line = line.split("=")
-            if line[0] == "pkt_pts_time":
+            if "pts_time" in line[0]:
                 self.pts_time = float(line[1])
             elif line[0] == "key_frame":
                 self.key_frame = bool(int(line[1]))
@@ -48,12 +48,12 @@ def frame_breakdown(all_frames: List[Frame]):
     Print I, P, B frames present
     """
 
-    i_frames = [x for x in all_frames if x.pict_type == "I"]
-    p_frames = [x for x in all_frames if x.pict_type == "P"]
-    b_frames = [x for x in all_frames if x.pict_type == "B"]
+    i_frames = len([x for x in all_frames if x.pict_type == "I"])
+    p_frames = len([x for x in all_frames if x.pict_type == "P"])
+    b_frames = len([x for x in all_frames if x.pict_type == "B"])
 
     print(
-        f"I frames: {len(i_frames)}, P Frames: {len(p_frames)}, B frames: {len(b_frames)}"
+        f"Total frames: {i_frames + p_frames + b_frames}, I frames: {i_frames}, P Frames: {p_frames}, B frames: {b_frames}"
     )
 
 
@@ -86,9 +86,12 @@ def get_video_stats(video: str):
     # Note that output comes in stderr instead of stdout
     for line in s.stderr.splitlines():
         if "Duration" in line:
-            print(line.split(',')[0].strip())
+            duration = line.split(",")[0].strip()
+            bitrate = line.split(",")[2].strip()
         if "Stream" in line:
-            print(line.split(',')[5].strip())
+            fps = line.split(",")[5].strip()
+
+    print(f"{duration}, {bitrate}, {fps}")
 
 
 def analyze_video(video: str):
@@ -108,7 +111,6 @@ def analyze_video(video: str):
     all_frames = get_frames(s.stdout)
 
     # Analyze video as a whole
-    print(f"Number of frames: {len(all_frames)}")
     get_video_stats(video)
     frame_breakdown(all_frames)
     skipped_frames(all_frames)
