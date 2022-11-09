@@ -118,7 +118,7 @@ def analyze_video(video: str):
 
 def main():
     """
-    Analyzes a video using ffmpeg
+    Analyzes a video or a folder of videos using ffmpeg
     """
     parser = argparse.ArgumentParser("Analyzes a video using ffmpeg.")
     parser.add_argument("video", help="Video or directory of videos to check")
